@@ -1,15 +1,14 @@
 services:
     laravel.test:
         build:
-            context: ./docker/8.3
+            context: ./docker/8.3-frankenphp
             dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
-        image: sail-8.3/app
+        image: app/frankenphp
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
             - '${APP_PORT:-80}:80'
+            - '${APP_PORT:-443}:443'
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
             WWWUSER: '${WWWUSER}'
@@ -17,11 +16,8 @@ services:
             XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
             XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
-            SUPERVISOR_PHP_COMMAND: "/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan octane:start --server=frankenphp --host=0.0.0.0 --admin-port=2019 --port=80"
-            XDG_CONFIG_HOME: /var/www/html/config
-            XDG_DATA_HOME: /var/www/html/data
         volumes:
-            - '.:/var/www/html'
+            - '.:/app'
         networks:
             - sail
         depends_on:
@@ -38,8 +34,9 @@ services:
             MYSQL_USER: '${DB_USERNAME}'
             MYSQL_PASSWORD: '${DB_PASSWORD}'
             MYSQL_ALLOW_EMPTY_PASSWORD: 1
+            FRANKENPHP_CONFIG: "worker ./public/index.php"
         volumes:
-            - 'sail-mysql:/var/lib/mysql'
+            - './data-mysql:/var/lib/mysql'
             - './docker/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
         networks:
             - sail
