@@ -20,7 +20,7 @@ export default () => {
         },
     };
 
-    const response = http.get('http://localhost/api/users', params);
+    const response = http.get('http://localhost/api/users');
     // sleep(1);
     // MORE STEPS
     // Here you can have more steps or complex script
